@@ -1,0 +1,24 @@
+#!/bin/csh -f
+#
+# cleanteams 	Tucker Balch
+#
+# This script cleans up the teams subdirectories - i.e.
+#	gets rid of non-source code.
+#
+# usage: cleanteams
+#
+# Make sure you're at the root of the soccer directory structure.
+#
+echo "cleanteams: cleaning...."
+cd teams/{$1}
+echo "cleanteams: Moving to ./teams"{$1}" ."
+foreach directory (*)
+	if (-d $directory) then
+		echo "cleanteams: Cleaning ./teams/"$directory
+		cd $directory
+		make clean
+		cd ..
+	endif
+end
+cd ..
+echo "cleanteams: done."

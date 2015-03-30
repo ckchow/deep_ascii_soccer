@@ -1,0 +1,50 @@
+OLD*OLD*VOID*VOID
+
+
+The First ASCII Soccer World Championship: Official Rules
+==========================================================
+Join the fun, submit an ASCII Soccer team!  My guess is that you can
+write a competitive team in about two hours.  
+
+Source code
+-----------
+Version 1.2 of ASCII Soccer is the official version for the contest.  
+It is available by ftp at ftp.cc.gatech.edu:/people/tucker/soccer.1.2.tar.Z
+The only changes to this release will be for bug fixes.
+
+Sign-up
+-------
+No sign-up is required, but if you are considering submitting a team, 
+please let me know, so I can advise you of any rule changes or bug fixes.
+
+Submissions
+-----------
+To be considered for the championship, soccer team source code must arrive
+by e-mail to me (tucker@cc.gatech.edu) before high noon on Thursday, May 18.
+Submitted teams' source code will not be available to other competitors
+until after the contest. 
+
+Games
+-----
+Games between teams will run until the first team scores 1000 points.
+The command-line is: "soccer -d -p 1000".  
+
+Contest Scoring
+---------------
+Each team will play every other team once.  Teams will be ranked by number
+of wins.  2-way ties are resolved by the score of the game between those
+teams.  3-or-more-way ties will be resolved by total points scored minus
+total points scored against.  Remaining ties, remain ties!
+
+Disqualification
+----------------
+Anything not forbidden is permitted.  Forbidden items include: accessing
+memory declared outside your team's .c file and deliberate infinite loops.
+Teams that take more than 1 hour to complete a game versus the teams/example.c 
+team on an unloaded Sparc 2 will be disqualified.
+
+Award Ceremony
+--------------
+An award will be given to the first place team at a ceremony TBA.
+
+

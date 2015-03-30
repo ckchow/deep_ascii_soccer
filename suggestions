@@ -1,0 +1,91 @@
+
+Hi Brian,
+
+I'm sorry I didn't get back to you sooner!
+
+Mmmm, this is very interesting.  Seems like it is best to constrain the
+ball one more cell inside the boundary; that would have less of an effect 
+on the players.  I also like your idea regarding TIME_OUT, I'll apply
+those to the next release.
+
+Regrettably, I'm going to have to postpone the International Contest.
+My Ph.D. advisor is on me to crank out some more work, and he knows about
+ASCII soccer!!!!!   
+
+I still welcome your reports and will slowly apply many of your changes.
+
+How about if you provide an amiga release for the ASCII soccer homepage?
+You'll be world famous!  Does amiga have tar?  Let me know.  If you
+can pack it up, I'll stick it on the page.
+
+
+--Tucker
+
+
+> I wrote to you yesterday about strange behaviour in soccer, near the top and
+> bottom of the pitch.
+> 
+> I have found the problem, and I think it is a bug. However, it is a very long
+> standing bug and fixing it might change the performance of some teams.
+> 	(In a very small way. Maybe)
+> 
+> The situation is this: if the ball comes to rest against the top or bottom edge
+> (i.e. y is min or max legal value) and a player approaches it along the adjacent
+> row, but makes no attempt to move it or kick it (i.e. the player is trying to
+> get directly behind the ball before moving or kicking it) then that player may
+> be in contact with the ball for several cycles. Your current code which spots
+> stalemates is oversensitive to this behaviour. It does not distinguish between
+> failed attempts to move the ball and manouvering around it. The presence of
+> _any_ player close to the ball, when the ball remains stationary, increments
+> 'count'. This happens for _every_ player on _every_ team. So, from one point of
+> view, the value for TIME_LIMIT at 20 is simply too small.  
+> 
+> 	This can also happen if a player manouvers around a ball which is in the
+> 	middle of the pitch. The effect is that the ball jumps just before it is
+> 	kicked - sometimes completely out of range of the kicker!
+> 
+> One fix is to change TIME_LIMIT to 30 or 40. However, this causes 'real'
+> stalemates to linger longer than is sensible, and may cause unnecessary
+> clustering of players at the ball.
+> 
+> I have 'fixed' the behaviour in my version by incrementing count in a different
+> place - well, 2 places, to be exact. In this version 'count' is used to count
+> only ATTEMPTS TO MOVE THE BALL, and I have set TIME_LIMIT at 8:
+> 
+> 	I increment count whenever any player legitimately attempts to kick the
+> 	ball.
+> 
+> 	I increment count whenever any player move would take it through a
+> 	location occupied by the ball (regardless of what is on the other side
+> 	of the ball)
+> 
+> This gives a smoothly flowing game, but has the effect that the ball follows the
+> sidewalls rather more than it used to. In fact, once the ball hits the side it
+> can only get into the middle again by getting trapped between two players.
+> 
+> This is a shame, because the occasional unexpected movement of the ball from the
+> side into the middle was much more realistic and interesting!!!!
+> On the other hand, the 'random' calls to nudge() while a player was manouvering
+> around a ball in the middle of the pitch has completely scuppered one of my
+> strategies.
+> 
+> How would you like to play this?
+> 
+> 	I would almost like to suggest allowing players (but not the ball) to
+> 	stray into the sidelines for the purposes of kicking the ball out into
+> 	the middle. This would also allow more realistic defending if we applied
+> 	the same logic at the goal-line. However, this would be a substantial
+> 	change, I think.
+> 
+> 
+> brian
+> 
+> 
+
+
+-- 
+-------------------------------------------------------------------------------
+Tucker Balch, PhD Student, CoC Office 123A                        home 350-0520
+tucker@cc.gatech.edu, http://www.cc.gatech.edu/grads/b/Tucker.Balch fx 894-9846
+Mobile Robot Laboratory, Georgia Institute of Technology         (404) 894-5613
+-------------------------------------------------------------------------------

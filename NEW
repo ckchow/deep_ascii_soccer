@@ -1,0 +1,60 @@
+What's new
+
+v2.0	15 Nov 95
+-----------------
+
+Added call to team function void UN(game_over)() so that learning teams
+can save their state before the program exits.
+
+Changed the type of these functions from char * to void:
+
+	void UN(won_point)()
+	void UN(lost_point)()
+	void UN(initialize_point)()
+	void UN(initialize_game)()
+
+Fixed bug where one team's score was not initialized.
+
+Changed directory structure in ./teams Now each team has it's own
+subdirectory and makefile.
+
+Changed compilation procedure.  Each team generates a group of
+libraries that are linked together to form soccer.  See the readme for
+this.
+
+Added packteam and unpackteam scripts that will pack up a team for
+e-mail shipping.
+
+
+Upgrading from v1.5
+===================
+
+It is fairly easy to convert your old team to the new format.  First, 
+save your old soccer directory (rename/mv it), then uncompress and
+untar v2.0.   Suppose the name of your team is fred, and you moved your
+old soccer directory to soccer.old, do the following:
+
+cd soccer
+cd teams
+mkdir fred
+cp example/* fred
+cp ../../soccer.old/teams/fred.c fred/main.c
+
+Now edit main.c and do the following.  Change the following functions
+from type char * to void:
+
+        void UN(won_point)()
+        void UN(lost_point)()
+        void UN(initialize_point)()
+        void UN(initialize_game)()
+
+Add the following function:
+
+void UN(game_over)()
+{
+}
+
+That's it.  Your old team should compile and link with v2.0.
+
+
+Email: tucker@cc.gatech.edu

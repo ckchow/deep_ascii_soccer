@@ -1,0 +1,228 @@
+<HTML>
+<H2>ASCII Soccer</H2>
+<PRE>
+
+                                    __
+                                  /^  ^\
+                                 | *| * |
+                             __  |      |   __
+                             \ \ |  \/  |  / /
+                              \ \ \____/  / /
+                               \ \__||__ / /
+                                \         /
+                                 \  GT   /
+                                  \     |
+                                   \    |     ====
+                                   /    \    / /
+                                  /  /\  \  / /
+                      _____      /  /  \  \/ /
+                     / \_/ \    /  /    \___/
+                    |\_/ \_/|   \ \
+                    |/ \_/ \|    \ \       
+                     \_/_\_/     _\ \
+                                ====/
+
+
+
+</PRE>
+designed by Tucker Balch<BR>
+ASCII art by Maria Hybinette<BR>
+<H3>Overview</H3>
+This program is a tool for investigating how groups of simple agents
+interact while playing a soccer-like game.  You can develop your own
+team strategies and test them against others.
+Two teams of players attempt to push a ball across the other team's
+goal.  The game can be viewed on your screen using
+ASCII-animation(r) technology.  Get the distribution here:
+<P>
+<A HREF="asciisoccer.zip">asciisoccer.zip</A>
+<P>
+For a synopsis of what's new in version 2.0, see the NEW file.
+<P>
+<H3>Compatibility</H3>
+
+This is AS IS unsupported software.  It has been tested, and
+runs on Mac OSX, RedHat Linux and Ubuntu Linux.
+To unpack the source code you will need zip
+To compile you will need make, gcc, csh, and the curses and termcap
+libraries.
+
+<H3>Quickstart</H3>
+
+Get the distribution (above).  After you've unzipped asciisoccer.zip, type
+<PRE>
+        ./make clean
+        ./contest random brute
+</PRE>
+This will set up a soccer match between the "random" team and
+the "brute" team, by compiling and linking teams in the directories
+teams/random and teams/brute.  If it does not compile, you
+probably don't have all the software you need to compile it.
+See "compatibility"  above.  Don't be too concerned about "warnings"
+but "errors" are bad!  After the compilation is complete the teams
+will automatically start a game.  The first team to 7 points wins.
+To run another game, type "./soccer"
+<P>
+This is what a game looks like:
+<P>
+<PRE>
+ASCII=Soccer=v2.0====(q)uit====(s)lower====(f)aster=============================
+|                                                                              |
+|                                          <                                   |
+|                                                                              |
+|                                         <                                    |
+|                                >                                             |
+|                                                                              |
+|                                     O                                        |
+|                                 >                                            |
+|                                                                              |
+|                                 >       <                                    |
+|                                                                              |
+|                                                                              |
+|                                                                              |
+|                                                                              |
+|                                                                              |
+|                                 >                                            |
+|                                                                              |
+|                                         <                                    |
+|                                                                              |
+|                                                                              |
+|                                                                              |
+================================================================================
+Krazy Kickers        1                              W'all Kick Yer Butt  5
+</PRE>
+
+<H3>Rules</H3>
+
+The teams consist of four players.  Each team member is provided
+with sensors that tell it about the immediately adjoining 8 cells,
+a compass heading towards the ball, and their location on the
+field.  Players can push the ball by trying to move to the cell it
+occupies, but they cannot move over one another or outside the
+boundaries.  Players may also kick the ball if they are immediately
+next to it.  A kicked ball travels 10 cells at 8 times the speed
+of a player.  When kicking the ball, the player also moves into
+the cell were the ball was previously.
+<P>
+A point is scored when the ball is pushed or kicked across a goal line.
+The game continues until the first team scores 7 points.
+<P>
+Occasionally, the ball gets "stuck" between two competitors.  In that case
+the ball is automatically "nudged" up or down, so play can resume.
+
+<H3>Designing Your Own Team</H3>
+
+Take a look at teams/random/main.c as a start.  There are several
+things to keep in mind as you write your code:
+<OL>
+<LI>You MUST have the following functions:
+                player1(), player2(), player3(), player4() and
+                team_name(), initialize_point(), won_point(),
+                lost_point(), initialize_game(), game_over().
+                Just use the random team as a shell and this will
+                happen for you.
+<P>
+<LI>Always assume you are the East Team: you start on the
+                east side and you want to push the ball to the west.
+                The program will automatically reverse things for
+                you when you start on the other side.
+</OL>
+The player() functions represent each player's strategy, the team_name
+function is used to print your team's name on the screen.
+<P>
+You will notice a macro called unique_name().  This is used to ensure that
+function and variable names are not duplicated between team's .c files.
+For instance, for the east team, unique_name(team_name)() will become EASTteam_name().
+This is necessary for the automatic compiling and linking of arbitrary teams
+for tournaments.  It also allows the same team to play itself.  Be sure to
+use the macro around all functions and global variables in your main.c file.
+<P>
+The players are actually functions player1() through player4().  Each
+function is passed 4 parameters.  The incoming parameters are the robot's
+sensory information:
+<P>
+<UL>
+<LI>local_area[] : Reveals what's nearby.  Indexed by
+                        N,NE,E,SE,S, etc. so that, for example,
+                        local_area[S] tells you what is in the
+                        cell to the south of the robot.  Possible
+                        values include: BOUNDARY, OPPONENT, TEAMMATE,
+                        BALL and EMPTY.
+<P>
+<LI>ball_direction : Compass heading to the ball: N, S, E, W, NE, etc.
+<P>
+<LI>x, y :   The robot's location.  y varies from 1 to 22,
+                        x varies from 1 to 78.  +x is east, +y is south.
+                        0 and 79 are goal lines, so your players will never
+                        occupy those locations.
+</UL>
+Each player function should return an integer indicating either a
+direction to move (N, NE, E, S, etc) or KICK to kick the ball.
+
+<H3>How the Compiling and Linking Works</H3>
+
+<P>
+Compiling and linking is rather hairy mostly because we can link together 
+any two arbitrary teams, and they can play on either side of the field.  
+Fortunately, if you
+just copy everything from the teams/random directory to a new directory,
+and develop your team there, you shouldn't have to worry about this too much.
+<P>
+The default makefile assumes your team is coded in main.c .
+main.c is compiled into either west.o or east.o depending on whether your
+team will take the east or west side of the field.  The symbols WEST_TEAM
+and EAST_TEAM are defined/not defined according to which side you're on.
+<P>
+The makefile also compiles common.c which is presumed to include functions
+and globals that do not have unique names and that might be shared if your
+team was playing itself.  Even if you don't use common.c, don't remove it!
+the contest script and makefiles aren't smart enough not to use it. I found
+I needed this to make it easier to use some c++ classes I use for my
+learning team.
+<P>
+Finally, the .o files are grouped into libraries: libeast.a libwest.a
+and libcommon.a .  The contest script copies the appropriate libraries
+up to the top directory, then links soccer.o with them to generate the
+final executable.
+<P>
+You can take advantage of this library approach now to design more complex
+teams composed of several separately compiled modules - but you don't have
+to!  Just make sure your makefile correctly generates libeast.a libwest.a
+and libcommon.a .
+<P>
+
+<H3>Advanced Techniques</H3>
+
+There are some additional hooks for learning, etc. which you may choose
+to use.  You will notice at the bottom of random.c there are several
+additional functions with no body.  These functions are automatically
+called at various points in the game, as follows:
+<UL>
+        <LI>initialize_game()       Called once per game before play begins.
+        <LI>game_over()             Called once per game at the end of the game.
+        <LI>initialize_point()      Called once per point before play begins.
+        <LI>lost_point()            Called if your team loses a point.
+        <LI>won_point()             Called if your team wins a point.
+</UL>
+You may find these functions handy for initialization and learning strategies.
+
+<H3>Command-line Arguments</H3>
+
+The soccer executable offers a few command-line arguments you may want
+to use:
+<UL>
+        <LI>-d              Don't display the game on the screen.
+        <LI>-s seed         Use seed as the random seed for the game.
+                        time() is used otherwise.
+        <LI>-p points       Play to points instead of the default 7.
+</UL>
+
+
+<H3>Bugs, Gripes, Complaints</H3>
+
+I don't promise ANYTHING, but I am very glad to see your teams and hear
+about bugs.  Especially if you have fixed them!!!!
+<P>
+trbalch@gmail.com
+
+</HTML>
