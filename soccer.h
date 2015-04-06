@@ -58,4 +58,25 @@
 	char *EASTteam_name();
 	char *WESTteam_name();
 
+	/* global variables for team state*/
+	/*
+	These define the data that a team planner should know.
+	*/
+	typedef struct
+	{
+		int x;
+		int y;
+		int neighborhood[9];
+		int ball_direction;
+	} playerdata_t;
+
+	typedef enum {Q_EAST, Q_WEST} q_side_t;
+	typedef enum {GAME_RUNNING, GAME_WESTWON, GAME_EASTWON} game_state_t;
+
+	extern game_state_t game_state;
+	extern q_side_t q_side;
+	extern playerdata_t team_state[4];
+	extern int q_actions[4];
+	extern double reward;
+
 #endif

@@ -10,8 +10,8 @@
 # Make sure you're at the root of the soccer directory structure.
 #
 echo "cleanteams: cleaning...."
-cd teams/{$1}
-echo "cleanteams: Moving to ./teams"{$1}" ."
+cd teams/
+echo "cleanteams: Moving to ./teams"
 foreach directory (*)
 	if (-d $directory) then
 		echo "cleanteams: Cleaning ./teams/"$directory
