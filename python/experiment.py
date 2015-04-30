@@ -1,4 +1,4 @@
-# experiment
+#!/usr/bin/env /usr/bin/python
 
 import rlglue.RLGlue as RLGlue
 
