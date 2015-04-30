@@ -1,0 +1,45 @@
+#!/usr/bin/env /usr/bin/python
+
+import subprocess
+import sys
+import os
+import argparse
+import datetime
+import time
+import signal
+import sys
+
+parser = argparse.ArgumentParser(description="deep soccer evaluator")
+parser.add_argument("--glue_port", type=str, default="4096",
+					help="rlglue port (default 4096)")
+args = parser.parse_known_args()[0]
+my_env = os.environ.copy()
+
+my_env["RLGLUE_PORT"] = args.glue_port
+
+time_dir = datetime.datetime.now().strftime("log_%Y%m%d(%H:%M:%S)")
+
+try:
+	os.makedirs(time_dir)
+except os.error:
+	print "directory already exists"
+
+logfiles = []
+
+def signal_handler(signal, frame):
+	global logfiles
+	print "caught ctrl-c"
+	[l.flush() for l in logfiles]
+	sys.exit(0)
+
+signal.signal(signal.SIGINT, signal_handler)
+
+def run(cmd, logdir, logfiles):
+	logfile = open(os.path.join(logdir, cmd), "w")
+	logfiles.append(logfile)
+	p = subprocess.Popen(cmd, shell=False, universal_newlines=True, stdout=logfile)
+	ret_code = p.wait()
+	logfile.flush()
+
+run("rl_glue", time_dir, logfiles)
+
