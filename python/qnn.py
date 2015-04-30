@@ -65,7 +65,8 @@ class QNN(object):
         self.prob_remember = prob_remember
         self.num_replay_samples = num_replay_samples
 
-
+    def predict(self, s):
+        return self.NN.predict(s)
 
     def GetValue(self, s, a=None):
         """ Return the Q(s,a) value of state (s) for action (a)

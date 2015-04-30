@@ -15,21 +15,25 @@ class Net(object):
 		self._train = functions["train"]
 		self._test = functions["test"]
 		self._predict = functions["predict"]
+		self._score = functions["score"]
 
 	def propagate(self, state):
-		self._predict(state)
+		return self._score(state)
 
 	def propagateAndUpdate(self, state, action):
 		"""
-		Dummy function for doing train
+		Dummy function for doing training.
 		"""
-		self._train(state, action)
+		return self._train(state, action)
 
 	def update(self, x, y):
 		"""
 		Backprop error from prediction. Single step of SGD.
 		"""
-		self._train(x, y)
+		return self._train(x, y)
+
+	def predict(self, state):
+		return self._predict(state)
 
 
 
@@ -92,8 +96,12 @@ def create_functions(output_layer,
 		[X, Y], [loss_eval, accuracy]
 		)
 
+	score = theano.function(
+		[X], output_layer.get_output(X, deterministic=True))
+
 	return {
 		"train": train,
 		"test": test,
-		"predict": predict
+		"predict": predict,
+		"score": score
 	}
