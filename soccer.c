@@ -70,7 +70,7 @@
  int    ball_x, ball_y;
  int    player_x[8], player_y[8];
  int    field[MAX_X][MAX_Y];
-int display = 1; /* indicates whether or not to display stuff */
+int display = false; /* indicates whether or not to display stuff */
 int points = 7; /* How many points til a win ? */
 
  extern int opterr;
@@ -341,38 +341,38 @@ void flatten_state(int* dest);
     Emit the first observation from the environment.
 
 *****************************************************************/
-    const observation_t* env_start()
-    {
-        init();
+const observation_t* env_start()
+{
+    init();
 
-        int west_players[] = {1,3,5,7};
-        int east_players[] = {0,2,4,6};
+    int west_players[] = {1,3,5,7};
+    int east_players[] = {0,2,4,6};
 
-        int backwards_cur_x, backwards_cur_y;
+    int backwards_cur_x, backwards_cur_y;
 
     // explicitly calculate first step
-        int *player_indices;
+    int *player_indices;
 
-        switch (q_side)
-        {
-            case Q_EAST:
-            player_indices = east_players;
-            break;
-            case Q_WEST:
-            player_indices = west_players;
-            break;
-        }
+    switch (q_side)
+    {
+        case Q_EAST:
+        player_indices = east_players;
+        break;
+        case Q_WEST:
+        player_indices = west_players;
+        break;
+    }
 
-        for (int p = 0; p < 4; p++)
-        {
-            int cur = player_indices[p];
+    for (int p = 0; p < 4; p++)
+    {
+        int cur = player_indices[p];
 
-            int local_field[9];
-            int ball_direction = N;
-            int backwards_ball_direction = N;
-            int local_backwards_field[9];
-            int local_ball_field[9];
-            double temp_angle = 0;
+        int local_field[9];
+        int ball_direction = N;
+        int backwards_ball_direction = N;
+        int local_backwards_field[9];
+        int local_ball_field[9];
+        double temp_angle = 0;
         /*
          * Player's posit
          */
@@ -457,6 +457,10 @@ void flatten_state(int* dest);
             break;
         }
     } // loop over players
+    // flatten state out
+    flatten_state(this_observation.intArray);
+
+    return &this_observation;
 }
 
 /*****************************************************************
