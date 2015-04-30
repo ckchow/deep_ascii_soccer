@@ -1,0 +1,99 @@
+import lasagne
+import theano.tensor as T
+import theano
+
+NUM_HIDDEN_UNITS = 512
+LEARNING_RATE = 0.01
+MOMENTUM = 0.9
+NUM_EPOCHS
+
+class Net(object):
+	def __init__(self, input_dim, output_dim):
+		self._output = build_model(input_dim, output_dim)
+		functions = create_functions(self._output)
+
+		self._train = functions["train"]
+		self._test = functions["test"]
+		self._predict = functions["predict"]
+
+	def propagate(self, state):
+		self._predict(state)
+
+	def propagateAndUpdate(self, state, action):
+		"""
+		Dummy function for doing train
+		"""
+		self._train(state, action)
+
+	def update(self, x, y):
+		"""
+		Backprop error from prediction. Single step of SGD.
+		"""
+		self._train(x, y)
+
+
+
+def build_model(input_dim, output_dim):
+	"""
+	Create a representation of a neural net with the dimensions specified.
+	"""
+
+	l_in = lasagne.layers.InputLayer(
+		shape=(1, input_dim)
+		)
+
+	l_hidden1 = lasagne.layers.DenseLayer(
+		l_in, 
+		num_units=40,
+		nonlinearity=lasagne.nonlinearities.rectify
+		)
+
+	l_hidden1_dropout = lasagne.layers.DropoutLayer(
+		l_hidden1)
+
+	l_out = lasagne.layers.DenseLayer(
+		l_hidden1_dropout, 
+		num_units=output_dim,
+		nonlinearity=lasagne.nonlinearities.softmax)
+
+	return l_out
+
+# there's two ways to optimize Q, batchwise with experience replay or with single updates
+
+def create_functions(output_layer, 
+					 learning_rate=LEARNING_RATE,
+					 momentum=MOMENTUM):
+	X = T.ivector('x')
+	Y = T.ivector('y')
+
+	objective = lasagne.objectives.Objective(output_layer,
+		loss_function=lasagne.objectives.categorical_crossentropy)
+
+	loss_train = objective.get_loss(X, target=Y)
+	loss_eval = objective.get_loss(X, target=Y, deterministic=True)
+
+	pred = T.argmax(
+		output_layer.get_output(X, determinstic=True), axis=1)
+	accuracy = T.mean(T.eq(pred, Y), dtype=theano.config.floatX)
+
+	all_params = lasagne.layers.get_all_params(output_layer)
+	updates = lasagne.updates.nesterov_momentum(
+		loss_train, all_params, learning_rate, momentum)
+
+	train = theano.function(
+		[X, Y], loss_train,
+		updates=updates,
+		)
+
+	predict = theano.function(
+		[X], pred)
+
+	test = theano.function(
+		[X, Y], [loss_eval, accuracy]
+		)
+
+	return {
+		"train": train,
+		"test": test,
+		"predict": predict
+	}
