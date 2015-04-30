@@ -28,6 +28,7 @@ BIGGEST_ACTION = 10
 class team_agent(Agent):
 	# (string) -> void
 	def agent_init(self, taskSpecification):
+		print "agent started"
 		self.policy_frozen = False
 		self.total_steps = 0
 		self.trial_start = 0.0
@@ -42,10 +43,11 @@ class team_agent(Agent):
 			"input_size": self.num_states,
 			"max_experiences": 500,
 			"gamma": 0.6,
-			"alpha": 0.2
+			"alpha": 0.2,
+			"use_sarsa": True
 		}
 
-		self.Q = [qnn.QNN(params) for i in xrange(4)]
+		self.Q = [qnn.QNN(**params) for i in xrange(4)]
 	
 	# (Observation) -> Action
 	def agent_start(self, observation):
@@ -78,9 +80,13 @@ class team_agent(Agent):
 
 	# (string) -> string
 	def agent_message(self, message):
-		pass
+		return "hello"
 
 	def qnnAction(self, observation):
+		# print "qnnAction"
+
+		s = observation.intArray
+
 		# epsilon-greedy
 		if (random.random() > self.epsilon):
 			act = Action()
@@ -94,17 +100,20 @@ class team_agent(Agent):
 			# must have both pieces
 			return
 
-		s = observation
-		ls = self.last_state
-		a = action
-		la = self.last_action
+		s = observation.intArray
+		ls = self.last_state.intArray
+		a = action.intArray
+		la = self.last_action.intArray
 
 		[self.Q[i].RememberExperience(ls, la, reward, s, a)
-			for i in xrange(r)]
+			for i in xrange(4)]
 
 	def random_action(self):
 		act = Action()
 		act.intArray.extend([random.randint(0,10) for i in xrange(4)])
+
+		# print act.intArray
+
 		return act
 
 	def save(self, filename):
@@ -117,3 +126,4 @@ class team_agent(Agent):
 
 if __name__=="__main__":
 	AgentLoader.loadAgent(team_agent())
+	print "agent loaded!!!"

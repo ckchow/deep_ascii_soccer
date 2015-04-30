@@ -5,7 +5,7 @@ import theano
 NUM_HIDDEN_UNITS = 512
 LEARNING_RATE = 0.01
 MOMENTUM = 0.9
-NUM_EPOCHS
+NUM_EPOCHS = 100
 
 class Net(object):
 	def __init__(self, input_dim, output_dim):
