@@ -55,12 +55,18 @@ p_agent = run("./python/agent.py", time_dir, logfiles)
 p_experiment = run("./python/experiment.py", time_dir, logfiles)
 p_environment = run("./soccer", time_dir, logfiles)
 
+def close(process):
+	if process.poll():
+		# None if the process is alive
+		process.terminate()
+
+
 @atexit.register
 def cleanup():
 	global logfiles, p_core, p_agent, p_experiment, p_environment
 	print "program exiting"
 	[l.flush() for l in logfiles]
-	[p.terminate() for p in (p_core, p_agent, p_experiment, p_environment)]
+	[close(p) for p in (p_core, p_agent, p_experiment, p_environment)]
 	sys.exit(0)
 
 def signal_handler(signal, frame):
