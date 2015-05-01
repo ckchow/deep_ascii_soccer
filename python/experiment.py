@@ -1,8 +1,10 @@
 #!/usr/bin/env /usr/bin/python
 
 import rlglue.RLGlue as RLGlue
+import sys
 
 episode = 0
+EPOCHS = 100
 
 def runEpisode(stepLimit):
 	global episode
@@ -16,8 +18,11 @@ def runEpisode(stepLimit):
 	episode += 1
 
 if __name__ == "__main__":
-	print "\n\nStarting experiment"
-	task_spec = RLGlue.RL_init()
-	print "task spec: " + task_spec
+	# TODO need a way to periodically flush the logfiles
 
-	runEpisode(10000)
+	print "\n\nStarting training."
+	
+	for i in xrange(EPOCHS):
+		runEpisode(10000)
+		sys.stdout.flush()
+		sys.stderr.flush()

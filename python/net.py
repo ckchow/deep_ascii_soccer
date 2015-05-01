@@ -67,8 +67,8 @@ def build_model(input_dim, output_dim):
 def create_functions(output_layer, 
 					 learning_rate=LEARNING_RATE,
 					 momentum=MOMENTUM):
-	X = T.ivector('x')
-	Y = T.ivector('y')
+	X = T.dvector('x')
+	Y = T.dvector('y')
 
 	objective = lasagne.objectives.Objective(output_layer,
 		loss_function=lasagne.objectives.categorical_crossentropy)
