@@ -12,6 +12,7 @@ import random
 import argparse
 import sys
 import cPickle
+import collections
 
 NW = 0
 N = 1
@@ -47,7 +48,7 @@ class team_agent(Agent):
 		self.total_steps = 0
 		self.trial_start = 0.0
 		self.step_number = 0
-		self.epsilon = 0.75 # exploration factor
+		self.epsilon = 0.05 # exploration factor
 		self.last_action = None
 		self.last_state = None
 		self.num_states = NUM_STATES
@@ -55,8 +56,6 @@ class team_agent(Agent):
 		self.Q = [qnn.QNN(**default_params) for i in xrange(4)]
 		self.savedir = None
 
-		def set_savedir(dirname):
-			self.savedir = dirname
 
 	# (Observation) -> Action
 	def agent_start(self, observation):
@@ -77,7 +76,7 @@ class team_agent(Agent):
 		self.last_state = observation
 		self.last_action = act
 
-		if self.step_number % 1000 == 0:
+		if self.step_number % 50 == 0:
 			sys.stdout.flush()
 			sys.stderr.flush()
 
@@ -92,7 +91,8 @@ class team_agent(Agent):
 
 	# () -> void
 	def agent_cleanup(self):
-		pass
+		sys.stdout.flush()
+		sys.stderr.flush()
 
 	# (string) -> string
 	def agent_message(self, message):
@@ -173,10 +173,27 @@ class team_agent(Agent):
 
 		[self.Q[i].NN.set_params(params[i]) for i in xrange(4)]
 
+
+class Player(object):
+	def __init__(self):
+		self.x = None
+		self.y = None
+		self.neighborhood = None
+		self.ball_dir = None
+
+def inflate_state(state_array):
+	players = [Player() for i in xrange(4)]
+
+	for i in xrange(4):
+		players[i].x = state_array[i+0]
+		players[i].y = state_array[i+1]
+		players[i].neighborhood = state_array[i+2:i+11]
+		players[i].ball_dir = state_array[i+11]
+
+	return players
+
+
 if __name__=="__main__":
 	agent = team_agent()
 
-	# TODO set save directories
-
 	AgentLoader.loadAgent(agent)
-	print "agent loaded!!!"

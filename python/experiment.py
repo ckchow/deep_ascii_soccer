@@ -6,7 +6,7 @@ import argparse
 import os
 
 episode = 0
-EPOCHS = 400
+EPOCHS = 100
 
 def runEpisode(stepLimit):
 	global episode
@@ -14,7 +14,7 @@ def runEpisode(stepLimit):
 	totalSteps = RLGlue.RL_num_steps()
 	totalReward = RLGlue.RL_return()
 
-	print "Episode {}\t {} steps\t {} total reward\t {} natural end"\
+	print "{}\t{}\t{}\t{}"\
 			.format(episode, totalSteps, totalReward, terminal)
 
 	episode += 1
@@ -27,11 +27,14 @@ if __name__ == "__main__":
 	if not os.path.isdir(args.logdir):
 		raise IOError("output directory doesn't exist")
 
-	print args.logdir
+	model_fname = os.path.join(args.logdir, "model.pkl")
+	print model_fname
 
 	RLGlue.RL_init()
 
-	print "\n\nStarting training."
+	print "\nStarting training."
+
+	print "Episode\tTotal Steps\tTotal Reward\tTerminated Naturally"
 	
 	for i in xrange(EPOCHS):
 		runEpisode(10000)
@@ -39,4 +42,7 @@ if __name__ == "__main__":
 		sys.stderr.flush()
 
 	print "Dumping models"
+	resp = RLGlue.RL_env_message("save_policy {}".format(model_fname))
+	print resp
+
 	

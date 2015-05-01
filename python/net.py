@@ -1,6 +1,7 @@
 import lasagne
 import theano.tensor as T
 import theano
+import numpy as np
 
 NUM_HIDDEN_UNITS = 512
 LEARNING_RATE = 0.01
@@ -33,6 +34,9 @@ class Net(object):
 		return self._train(x, y)
 
 	def predict(self, state):
+		
+		state = np.array(state, dtype=np.float32)
+
 		return self._predict(state)
 
 	def get_params(self):
@@ -70,11 +74,9 @@ def build_model(input_dim, output_dim):
 	return l_out
 
 # there's two ways to optimize Q, batchwise with experience replay or with single updates
-
 def create_functions(output_layer, 
-					 learning_rate=LEARNING_RATE,
-					 momentum=MOMENTUM):
-	X = T.dvector('x')
+					 learning_rate=LEARNING_RATE):
+	X = T.fvector('x')
 	Y = T.ivector('y')
 
 	objective = lasagne.objectives.Objective(output_layer,
@@ -85,11 +87,16 @@ def create_functions(output_layer,
 
 	pred = T.argmax(
 		output_layer.get_output(X, determinstic=True), axis=1)
+
 	accuracy = T.mean(T.eq(pred, Y), dtype=theano.config.floatX)
 
 	all_params = lasagne.layers.get_all_params(output_layer)
-	updates = lasagne.updates.nesterov_momentum(
-		loss_train, all_params, learning_rate, momentum)
+
+	# updates = lasagne.updates.nesterov_momentum(
+	# 	loss_train, all_params, learning_rate, momentum)
+
+	updates = lasagne.updates.adadelta(loss_train, all_params,
+					learning_rate=learning_rate)
 
 	train = theano.function(
 		[X, Y], loss_train,
