@@ -16,3 +16,12 @@ void dummyrandomname()
 {
 }
 
+int contains(int* neighborhood, int object)
+{
+	for (int i = 0; i < 9; i++)
+	{
+		if (neighborhood[i] == object)
+			return true;
+	}
+	return false;
+}

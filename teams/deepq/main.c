@@ -18,14 +18,20 @@ const double game_reward = 100.0;
 const double game_penalty = 100.0;
 
 const double walk_penalty = 1.0;
-const double walk_diagonal_penalty = 1.0;
+const double walk_diagonal_penalty = 0.5;
 const double kick_penalty = 5.0; // kicking is risky!!!
+
+const double posession_reward = 5.0;
+
+const double ball_seek_reward = 1.0;
 
 q_side_t q_side = Q_EAST;
 
 /*forward ref*/
 int unique_name(random_heading)();
 int unique_name(learned_action)(int obstacles[9], int ball_direction, int x, int y, int player_index);
+
+extern int contains(int*, int);
 
 /*-----------------------------------------------------
 
@@ -116,6 +122,16 @@ int unique_name(learned_action)(int obstacles[9], int ball_direction, int x, int
 		case KICK:
 			reward -= kick_penalty;
 			break;
+	}
+
+	if (action == ball_direction)
+	{
+		reward += ball_seek_reward;
+	}
+
+	if (contains(obstacles, BALL))
+	{
+		reward += posession_reward;
 	}
 
 	return q_actions[player_index];
