@@ -10,6 +10,7 @@ import signal
 import sys
 import ntpath
 import atexit
+import shlex
 
 parser = argparse.ArgumentParser(description="deep soccer evaluator")
 parser.add_argument("--glue_port", type=str, default="4096",
@@ -19,40 +20,48 @@ my_env = os.environ.copy()
 
 my_env["RLGLUE_PORT"] = args.glue_port
 
-time_dir = datetime.datetime.now().strftime("log_%Y%m%d(%H:%M:%S)")
+time_dir = os.path.abspath(
+			datetime.datetime.now().strftime("./log_%Y%m%d(%H:%M:%S)"))
 
 try:
 	os.makedirs(time_dir)
 except os.error:
 	print "directory already exists"
+	sys.exit(0)
 
 logfiles = []
 
 
-	
-
 def run(cmd, logdir, logfiles):
 	global my_env
-	fname = os.path.splitext(ntpath.basename(cmd))[0]
+	cmdname = cmd.split(" ")[0]
+	fname = os.path.splitext(ntpath.basename(cmdname))[0]
 
-	print os.path.join("./", logdir, fname)
+	logpath = os.path.join(logdir, fname+"_log")
+	errpath = os.path.join(logdir, fname+"_err")
 
-	logpath = os.path.abspath(os.path.join("./", logdir, fname+"_log"))
-	errpath = os.path.abspath(os.path.join("./", logdir, fname+"_err"))
+	print "cmd:", cmd
+	print "logpath:", logpath
+	print "errpath:", errpath
+	print 
 
 
 	logfile = open(logpath, "w")
 	errfile = open(errpath, "w")
 	logfiles.append(logfile)
 	logfiles.append(errfile)
-	p = subprocess.Popen(cmd, shell=False, universal_newlines=True, 
+	runcmd = shlex.split(cmd)
+	p = subprocess.Popen(runcmd, shell=False, universal_newlines=True, 
 						 stdout=logfile, stderr=errfile, env=my_env)
+
 
 	return p
 
 p_core = run("rl_glue", time_dir, logfiles)
 p_agent = run("./python/agent.py", time_dir, logfiles)
-p_experiment = run("./python/experiment.py", time_dir, logfiles)
+p_experiment = run("./python/experiment.py {}".format(time_dir), 
+					time_dir, logfiles)
+
 p_environment = run("./soccer", time_dir, logfiles)
 
 def close(process):
