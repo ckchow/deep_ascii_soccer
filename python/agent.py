@@ -27,14 +27,16 @@ KICK = 9
 DO_NOTHING = 10
 BIGGEST_ACTION = 10
 
+NUM_STATES = 4 * (9 + 2 + 1)
+
 default_params = {
-			"num_actions": 11,
-			"input_size": self.num_states,
-			"max_experiences": 500,
-			"gamma": 0.6,
-			"alpha": 0.2,
-			"use_sarsa": True
-		}
+"num_actions": 11,
+"input_size": NUM_STATES,
+"max_experiences": 500,
+"gamma": 0.6,
+"alpha": 0.2,
+"use_sarsa": True
+}
 
 
 class team_agent(Agent):
@@ -48,28 +50,30 @@ class team_agent(Agent):
 		self.epsilon = 0.75 # exploration factor
 		self.last_action = None
 		self.last_state = None
-		self.num_states = 4 * (9 + 2 + 1)
+		self.num_states = NUM_STATES
 
 		self.Q = [qnn.QNN(**default_params) for i in xrange(4)]
 		self.savedir = None
 
-	def set_savedir(dirname):
-		self.savedir = dirname
-	
+		def set_savedir(dirname):
+			self.savedir = dirname
+
 	# (Observation) -> Action
 	def agent_start(self, observation):
 		self.step_number = 0
 		self.trial_start = time.clock()
 
 		return self.qnnAction(observation)
-	
+
 	# (double, Observation) -> Action
 	def agent_step(self, reward, observation):
 		self.step_number += 1
 		self.total_steps += 1
 		act = self.qnnAction(observation)
+		
 		if not self.policy_frozen:
 			self.qnnUpdate(observation, act, reward)
+
 		self.last_state = observation
 		self.last_action = act
 
@@ -78,14 +82,14 @@ class team_agent(Agent):
 			sys.stderr.flush()
 
 		return act
-	
+
 	# (double) -> void
 	def agent_end(self, reward):
 		time_elapsed = time.clock() - self.trial_start
 		print "AGENT: ended after {} steps".format(self.total_steps)
 		print "AGENT: avg {:.2} steps per second".\
-				format(self.step_number/time_elapsed)
-	
+		format(self.step_number/time_elapsed)
+
 	# () -> void
 	def agent_cleanup(self):
 		pass
@@ -93,43 +97,42 @@ class team_agent(Agent):
 	# (string) -> string
 	def agent_message(self, message):
 		if inMessage.startswith("freeze_learning"):
-            self.policy_frozen=True
-            return "agent: policy frozen"
-        if inMessage.startswith("unfreeze_learning"):
-            self.policy_frozen=False
-            return "agent: policy unfrozen"
-        if inMessage.startswith("set_exploring"):
-            splitString=inMessage.split(" ")
-            self.epsilon = float(splitString[1])
-            return "agent: setting exploration factor to {}"\
-            			.format(self.epsilon)
-        if inMessage.startswith("save_policy"):
-            splitString=inMessage.split(" ")
-            self.save(splitString[1])
-            print "agent: policy saved"
-            return "agent: saving policy"
-        if inMessage.startswith("load_policy"):
-            splitString=inMessage.split(" ")
-            self.load(splitString[1])
-            print "agent: policy loaded"
-            return "agent: loading policy"
-        if inMessage.startswith("use_impactful_experiences"):
-            self.Q.use_impactful = True
-            return "agent: using impactful experiences"
-        if inMessage.startswith("use_all_experiences"):
-            self.Q.use_impactful = False
-            return "agent: using all experiences"
-        if inMessage.startswith("reset_q"):
-            self.Q = [qnn.QNN(**default_params) for i in xrange(4)]
-            return "agent: reseting q-function"
+			self.policy_frozen=True
+			return "agent: policy frozen"
+		if inMessage.startswith("unfreeze_learning"):
+			self.policy_frozen=False
+			return "agent: policy unfrozen"
+		if inMessage.startswith("set_exploring"):
+			splitString=inMessage.split(" ")
+			self.epsilon = float(splitString[1])
+			return "agent: setting exploration factor to {}"\
+				.format(self.epsilon)
+		if inMessage.startswith("save_policy"):
+			splitString=inMessage.split(" ")
+			self.save(splitString[1])
+			print "agent: policy saved"
+			return "agent: saving policy"
+		if inMessage.startswith("load_policy"):
+			splitString=inMessage.split(" ")
+			self.load(splitString[1])
+			print "agent: policy loaded"
+			return "agent: loading policy"
+		if inMessage.startswith("use_impactful_experiences"):
+			self.Q.use_impactful = True
+			return "agent: using impactful experiences"
+		if inMessage.startswith("use_all_experiences"):
+			self.Q.use_impactful = False
+			return "agent: using all experiences"
+		if inMessage.startswith("reset_q"):
+			self.Q = [qnn.QNN(**default_params) for i in xrange(4)]
+			return "agent: reseting q-function"
 
 	def qnnAction(self, observation):
 		# print "qnnAction"
 
-		s = observation.intArray
-
 		# epsilon-greedy
 		if (random.random() > self.epsilon):
+			s = observation.intArray
 			act = Action()
 			act.intArray.extend([self.Q[i].predict(s) for i in xrange(4)])
 			return act
@@ -147,7 +150,7 @@ class team_agent(Agent):
 		la = self.last_action.intArray
 
 		[self.Q[i].RememberExperience(ls, la, reward, s, a)
-			for i in xrange(4)]
+		for i in xrange(4)]
 
 	def random_action(self):
 		act = Action()
@@ -163,10 +166,10 @@ class team_agent(Agent):
 	def load(self, filename):
 		pass
 
-
-
 if __name__=="__main__":
 	agent = team_agent()
 
-	AgentLoader.loadAgent(team_agent())
+	# TODO set save directories
+
+	AgentLoader.loadAgent(agent)
 	print "agent loaded!!!"

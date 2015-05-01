@@ -18,7 +18,7 @@ def runEpisode(stepLimit):
 	episode += 1
 
 if __name__ == "__main__":
-	# TODO need a way to periodically flush the logfiles
+	RLGlue.RL_init()
 
 	print "\n\nStarting training."
 	

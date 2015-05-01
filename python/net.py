@@ -68,7 +68,7 @@ def create_functions(output_layer,
 					 learning_rate=LEARNING_RATE,
 					 momentum=MOMENTUM):
 	X = T.dvector('x')
-	Y = T.dvector('y')
+	Y = T.ivector('y')
 
 	objective = lasagne.objectives.Objective(output_layer,
 		loss_function=lasagne.objectives.categorical_crossentropy)
