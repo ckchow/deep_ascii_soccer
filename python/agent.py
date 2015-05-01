@@ -10,8 +10,8 @@ import qnn
 import time
 import random
 import argparse
-
 import sys
+import cPickle
 
 NW = 0
 N = 1
@@ -70,7 +70,7 @@ class team_agent(Agent):
 		self.step_number += 1
 		self.total_steps += 1
 		act = self.qnnAction(observation)
-		
+
 		if not self.policy_frozen:
 			self.qnnUpdate(observation, act, reward)
 
@@ -161,10 +161,17 @@ class team_agent(Agent):
 		return act
 
 	def save(self, filename):
-		pass
+		params = [self.Q[i].NN.get_params() for i in xrange(4)]
+
+		with open(filename, "w") as pfile:
+			cPickle.dump(params, pfile)
+
 
 	def load(self, filename):
-		pass
+		with open(filename, "r") as pfile:
+			params = cPickle.load(pfile)
+
+		[self.Q[i].NN.set_params(params[i]) for i in xrange(4)]
 
 if __name__=="__main__":
 	agent = team_agent()
