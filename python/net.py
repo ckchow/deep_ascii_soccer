@@ -35,6 +35,13 @@ class Net(object):
 	def predict(self, state):
 		return self._predict(state)
 
+	def get_params(self):
+		return lasagne.layers.get_all_param_values(self._output)
+
+	def set_params(self, params):
+		lasagne.layers.set_all_param_values(self._output, params)
+
+
 
 
 def build_model(input_dim, output_dim):
@@ -48,7 +55,7 @@ def build_model(input_dim, output_dim):
 
 	l_hidden1 = lasagne.layers.DenseLayer(
 		l_in, 
-		num_units=40,
+		num_units=NUM_HIDDEN_UNITS,
 		nonlinearity=lasagne.nonlinearities.rectify
 		)
 
