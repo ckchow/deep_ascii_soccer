@@ -32,6 +32,11 @@ if __name__ == "__main__":
 
 	RLGlue.RL_init()
 
+	print "generating test states"
+	print RLGlue.RL_agent_message("set_exploring 1.0")
+	print RLGlue.RL_agent_message("freeze_learning")
+	print RLGlue.RL_agent_message("dump_states")
+
 	print "\nStarting training."
 
 	print "Episode\tTotal Steps\tTotal Reward\tTerminated Naturally"
@@ -42,7 +47,7 @@ if __name__ == "__main__":
 		sys.stderr.flush()
 
 	print "Dumping models"
-	resp = RLGlue.RL_env_message("save_policy {}".format(model_fname))
+	resp = RLGlue.RL_agent_message("save_policy {}".format(model_fname))
 	print resp
 
 	

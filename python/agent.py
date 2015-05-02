@@ -56,6 +56,8 @@ class team_agent(Agent):
 		self.Q = [qnn.QNN(**default_params) for i in xrange(4)]
 		self.savedir = None
 
+		self.dump_state = False
+
 
 	# (Observation) -> Action
 	def agent_start(self, observation):
@@ -76,7 +78,11 @@ class team_agent(Agent):
 		self.last_state = observation
 		self.last_action = act
 
+		if self.dump_state:
+			print observation.intArray
+
 		if self.step_number % 50 == 0:
+
 			sys.stdout.flush()
 			sys.stderr.flush()
 
@@ -96,36 +102,45 @@ class team_agent(Agent):
 
 	# (string) -> string
 	def agent_message(self, message):
-		if inMessage.startswith("freeze_learning"):
+		if message.startswith("freeze_learning"):
 			self.policy_frozen=True
 			return "agent: policy frozen"
-		if inMessage.startswith("unfreeze_learning"):
+		if message.startswith("unfreeze_learning"):
 			self.policy_frozen=False
 			return "agent: policy unfrozen"
-		if inMessage.startswith("set_exploring"):
-			splitString=inMessage.split(" ")
+		if message.startswith("set_exploring"):
+			splitString=message.split(" ")
 			self.epsilon = float(splitString[1])
 			return "agent: setting exploration factor to {}"\
 				.format(self.epsilon)
-		if inMessage.startswith("save_policy"):
-			splitString=inMessage.split(" ")
+		if message.startswith("save_policy"):
+			splitString=message.split(" ")
 			self.save(splitString[1])
 			print "agent: policy saved"
 			return "agent: saving policy"
-		if inMessage.startswith("load_policy"):
-			splitString=inMessage.split(" ")
+		if message.startswith("load_policy"):
+			splitString=message.split(" ")
 			self.load(splitString[1])
 			print "agent: policy loaded"
 			return "agent: loading policy"
-		if inMessage.startswith("use_impactful_experiences"):
+		if message.startswith("use_impactful_experiences"):
 			self.Q.use_impactful = True
 			return "agent: using impactful experiences"
-		if inMessage.startswith("use_all_experiences"):
+		if message.startswith("use_all_experiences"):
 			self.Q.use_impactful = False
 			return "agent: using all experiences"
-		if inMessage.startswith("reset_q"):
+		if message.startswith("reset_q"):
 			self.Q = [qnn.QNN(**default_params) for i in xrange(4)]
 			return "agent: reseting q-function"
+		if message.startswith("dump_states_enable"):
+			self.dump_state = True
+			return "agent: dumping all states to log"
+
+		if message.startswith("dump_states_disable"):
+			self.dump_state = False
+			return "agent: stopped dumping states to log"
+
+
 
 	def qnnAction(self, observation):
 		# print "qnnAction"
