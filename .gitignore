@@ -5,6 +5,8 @@ log*/
 __pycache__/
 *.py[cod]
 
+.ipynb_checkpoints/
+
 # C extensions
 *.so
 *.o
