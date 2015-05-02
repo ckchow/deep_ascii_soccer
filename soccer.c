@@ -262,23 +262,26 @@ void flatten_state(int* dest);
 
 *****************************************************************/
 /* turn the team state into an array of 48 integers */
-    void flatten_state(int* dest)
+void flatten_state(int* dest)
+{
+    // 12 integers per player
+    for (int i = 0; i < 4; i++)
     {
-        for (int i = 0; i < 4; i++)
+        int idx = i * 12;
+        int j = 0;
+
+        dest[idx+j] = team_state[i].x;
+        j++;
+        dest[idx+j] = team_state[i].y;
+        j++;
+        for (int k = 0; k < 9; k++)
         {
-            int j = 0;
-            dest[i+j] = team_state[i].x;
+            dest[idx+j] = team_state[i].neighborhood[k];
             j++;
-            dest[i+j] = team_state[i].y;
-            j++;
-            for (int k = 0; k < 9; k++)
-            {
-                dest[i+j] = team_state[i].neighborhood[k];
-                j++;
-            }
-            dest[i+j] = team_state[i].ball_direction;
         }
+        dest[idx+j] = team_state[i].ball_direction;
     }
+}
 
 /*****************************************************************
 
