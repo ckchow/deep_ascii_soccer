@@ -3,7 +3,6 @@ import theano.tensor as T
 import theano
 import numpy as np
 
-NUM_HIDDEN_UNITS = 512
 LEARNING_RATE = 0.01
 MOMENTUM = 0.9
 NUM_EPOCHS = 100
@@ -59,15 +58,23 @@ def build_model(input_dim, output_dim):
 
 	l_hidden1 = lasagne.layers.DenseLayer(
 		l_in, 
-		num_units=NUM_HIDDEN_UNITS,
+		num_units=512,
 		nonlinearity=lasagne.nonlinearities.rectify
 		)
 
 	l_hidden1_dropout = lasagne.layers.DropoutLayer(
 		l_hidden1)
 
+	l_hidden2 = lasagne.layers.DenseLayer(
+		l_hidden1_dropout,
+		num_units=512,
+		nonlinearity=lasagne.nonlinearities.rectify
+		)
+	l_hidden2_dropout = lasagne.layers.DropoutLayer(
+		l_hidden2)
+
 	l_out = lasagne.layers.DenseLayer(
-		l_hidden1_dropout, 
+		l_hidden2_dropout, 
 		num_units=output_dim,
 		nonlinearity=lasagne.nonlinearities.softmax)
 

@@ -1,4 +1,4 @@
-#!/usr/bin/env /usr/bin/python
+#!/usr/bin/env python
 # team wild dogges
 
 from rlglue.agent.Agent import Agent

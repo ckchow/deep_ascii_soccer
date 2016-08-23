@@ -1,4 +1,4 @@
-#!/usr/bin/env /usr/bin/python
+#!/usr/bin/env python
 
 import rlglue.RLGlue as RLGlue
 import sys
