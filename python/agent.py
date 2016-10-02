@@ -28,6 +28,7 @@ KICK = 9
 DO_NOTHING = 10
 BIGGEST_ACTION = 10
 
+# players * (occupancy + x + y + ball_heading)
 NUM_STATES = 4 * (9 + 2 + 1)
 
 default_params = {
@@ -40,7 +41,7 @@ default_params = {
 }
 
 
-class team_agent(Agent):
+class TeamManager(Agent):
     # (string) -> void
     def agent_init(self, taskSpecification):
         print "agent started"
@@ -165,72 +166,34 @@ class team_agent(Agent):
         la = self.last_action.intArray
 
         [self.Q[i].RememberExperience(ls, la, reward, s, a)
-        for i in xrange(4)]
+            for i in xrange(4)]
 
     def random_action(self):
         act = Action()
-        act.intArray.extend([random.randint(0,10) for i in xrange(4)])
+        act.intArray.extend([random.randint(0,10) for _ in xrange(4)])
 
         # print act.intArray
 
         return act
 
     def save(self, filename):
-        params = [self.Q[i].NN.get_params() for i in xrange(4)]
-
-        with open(filename, "w") as pfile:
-            cPickle.dump(params, pfile)
+        # params = [self.Q[i].NN.get_params() for i in xrange(4)]
+        #
+        # with open(filename, "w") as pfile:
+        #     cPickle.dump(params, pfile)
+        print 'save disabled you fooool'
 
 
     def load(self, filename):
-        with open(filename, "r") as pfile:
-            params = cPickle.load(pfile)
+        # with open(filename, "r") as pfile:
+        #     params = cPickle.load(pfile)
+        #
+        # [self.Q[i].NN.set_params(params[i]) for i in xrange(4)]
+        print 'loading disabled for now'
 
-        [self.Q[i].NN.set_params(params[i]) for i in xrange(4)]
-
-
-class Player(object):
-    def __init__(self):
-        self.x = None
-        self.y = None
-        self.neighborhood = None
-        self.ball_dir = None
-
-def inflate_state(state_array):
-    players = [Player() for i in xrange(4)]
-
-    for i in xrange(4):
-        players[i].x = state_array[i+0]
-        players[i].y = state_array[i+1]
-        players[i].neighborhood = state_array[i+2:i+11]
-        players[i].ball_dir = state_array[i+11]
-
-    return players
-
-
-
-class DummyAgent(Agent):
-    def agent_message(message):
-        Agent.agent_message(message)
-
-    def agent_step(reward, observation):
-        Agent.agent_step(reward, observation)
-
-    def agent_start(observation):
-        Agent.agent_start(observation)
-
-    def agent_cleanup():
-        Agent.agent_cleanup()
-
-    def agent_end(reward):
-        Agent.agent_end(reward)
-
-    def agent_init(taskSpecification):
-        Agent.agent_init(taskSpecification)
 
 
 if __name__=="__main__":
-    # agent = team_agent()
-    agent = DummyAgent()
+    agent = TeamManager()
 
     AgentLoader.loadAgent(agent)
