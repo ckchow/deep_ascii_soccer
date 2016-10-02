@@ -1,6 +1,7 @@
-import lasagne
-import theano.tensor as T
-import theano
+# import lasagne
+# import theano.tensor as T
+# import theano
+import tensorflow as tf
 import numpy as np
 
 LEARNING_RATE = 0.01
@@ -9,7 +10,8 @@ NUM_EPOCHS = 100
 
 class Net(object):
 	def __init__(self, input_dim, output_dim):
-		self._output = build_model(input_dim, output_dim)
+
+		self._output = build_model(input, output_dim)
 		functions = create_functions(self._output)
 
 		self._train = functions["train"]
@@ -47,7 +49,7 @@ class Net(object):
 
 
 
-def build_model(input_dim, output_dim):
+def build_model(input, output_dim):
 	"""
 	Create a representation of a neural net with the dimensions specified.
 	"""
