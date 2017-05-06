@@ -6,6 +6,8 @@ from rlglue.agent import AgentLoader as AgentLoader
 from rlglue.types import Action
 from rlglue.types import Observation
 
+import numpy as np
+
 import qnn
 import time
 import random
@@ -24,15 +26,22 @@ SW = 6
 S = 7
 SE = 8
 
+DIRECTIONS = ('NW', 'N', 'NE', 'W', 'PLAYER', 'E', 'SW', 'S', 'SE')
+OCCUPANTS = ('EMPTY', 'GOAL', 'BALL', 'BOUNDARY', 'WEST_PLAYER', 'EAST_PLAYER')
+OCCUPANT_LOOKUP = dict(zip(range(len(OCCUPANTS)), OCCUPANTS))
+
 KICK = 9
 DO_NOTHING = 10
 BIGGEST_ACTION = 10
 
-# players * (occupancy + x + y + ball_heading)
+# players * (occupancy + xy_pos + ball_heading)
 NUM_STATES = 4 * (9 + 2 + 1)
 
+# players * (movedir + kick + nothing)
+NUM_ACTIONS = 4 * (9 + 1 + 1)
+
 default_params = {
-"num_actions": 11,
+"num_actions": NUM_ACTIONS,
 "input_size": NUM_STATES,
 "max_experiences": 500,
 "gamma": 0.6,
@@ -54,7 +63,8 @@ class TeamManager(Agent):
         self.last_state = None
         self.num_states = NUM_STATES
 
-        self.Q = [qnn.QNN(**default_params) for i in xrange(4)]
+        # self.Q = [qnn.QNN(**default_params) for _ in xrange(4)]
+        self.Q = qnn.QNN(**default_params)
         self.savedir = None
 
         self.dump_state = False
@@ -131,7 +141,7 @@ class TeamManager(Agent):
             self.Q.use_impactful = False
             return "agent: using all experiences"
         if message.startswith("reset_q"):
-            self.Q = [qnn.QNN(**default_params) for i in xrange(4)]
+            self.Q = qnn.QNN(**default_params)
             return "agent: reseting q-function"
         if message.startswith("dump_states_enable"):
             self.dump_state = True
@@ -144,13 +154,13 @@ class TeamManager(Agent):
 
 
     def qnnAction(self, observation):
-        # print "qnnAction"
 
         # epsilon-greedy
         if (random.random() > self.epsilon):
             s = observation.intArray
             act = Action()
-            act.intArray.extend([self.Q[i].predict(s) for i in xrange(4)])
+            # act.intArray.extend([self.Q[i].predict(s) for i in xrange(4)])
+            act.intArray = self.Q.predict(s[np.newaxis, :])
             return act
         else:
             return self.random_action()
@@ -165,8 +175,7 @@ class TeamManager(Agent):
         a = action.intArray
         la = self.last_action.intArray
 
-        [self.Q[i].RememberExperience(ls, la, reward, s, a)
-            for i in xrange(4)]
+        self.Q.RememberExperience(ls, la, reward, s, a)
 
     def random_action(self):
         act = Action()
@@ -191,7 +200,25 @@ class TeamManager(Agent):
         # [self.Q[i].NN.set_params(params[i]) for i in xrange(4)]
         print 'loading disabled for now'
 
+# for looking at states
+def decompress_state(state):
+    # x y neighborhood(9) ball direction
+    for player_index in range(4):
+        s = state[player_index * 12:]
 
+        x = s[0]
+        y = s[1]
+
+        occupant_list = []
+
+        for i, direction in enumerate(DIRECTIONS):
+            occupant = s[i + 2] # skip the position states
+            if (OCCUPANT_LOOKUP[occupant] != 'EMPTY'):
+                occupant_list.append((OCCUPANT_LOOKUP[occupant], direction))
+
+        ball_direction = DIRECTIONS[s[11]]
+
+    return 'x: {}, y: {}'
 
 if __name__=="__main__":
     agent = TeamManager()

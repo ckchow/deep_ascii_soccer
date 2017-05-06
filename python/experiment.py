@@ -33,9 +33,9 @@ if __name__ == "__main__":
 	RLGlue.RL_init()
 
 	print "generating test states"
-	print RLGlue.RL_agent_message("set_exploring 1.0")
-	print RLGlue.RL_agent_message("freeze_learning")
-	print RLGlue.RL_agent_message("dump_states")
+	print RLGlue.RL_agent_message("set_exploring 0.5")
+	print RLGlue.RL_agent_message("unfreeze_learning")
+	print RLGlue.RL_agent_message("dump_states_enable")
 
 	print "\nStarting training."
 

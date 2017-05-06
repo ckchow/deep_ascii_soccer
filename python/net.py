@@ -10,11 +10,11 @@ MOMENTUM = 0.9
 NUM_EPOCHS = 100
 
 class Net(object):
-    def __init__(self, input_dim, label_dim, output_dim):
+    def __init__(self, input_dim, output_dim):
         # best actions
-        self._labels = tf.placeholder([None, label_dim], name='label')
+        self._labels = tf.placeholder(tf.int32, [None, output_dim], name='label')
         # state inputs
-        self._input = tf.placeholder([None, input_dim], name='state_inpu')
+        self._input = tf.placeholder(tf.float32, [None, input_dim], name='state_input')
 
         self._logits = build_model(self._input, output_dim)
 
@@ -22,9 +22,9 @@ class Net(object):
 
         self._loss =slim.losses.get_total_loss()
 
-        self._predict = tf.argmax(self._logits, 1)
+        self._predict = tf.cast(tf.argmax(self._logits, 1), tf.int32)
 
-        self._accuracy = tf.reduce_mean(tf.equal(self._predict, self._labels))
+        self._accuracy = tf.reduce_mean(tf.cast(tf.equal(self._predict, self._labels), tf.float32))
 
         optimizer = tf.train.MomentumOptimizer(LEARNING_RATE, MOMENTUM)
 
@@ -54,17 +54,17 @@ class Net(object):
         Do training
         """
         # return self._train(state, action)
-        self.session.run(self._train, feed_dict={self._labels: action,
-                                                 self._input: state})
-        return
+        out, _ = self.session.run([self._logits, self._train], feed_dict={self._labels: action,
+                                                                          self._input: state})
+        return out
 
     def update(self, x, y):
         """
         Backprop error from prediction. Single step of SGD.
         """
 
-        self.session.run(self._train, feed_dict={self._labels: action,
-                                                 self._input: state})
+        self.session.run(self._train, feed_dict={self._labels: y,
+                                                 self._input: x})
 
         return
 
@@ -89,9 +89,10 @@ def build_model(input, output_dim):
     """
     Create a representation of a neural net with the dimensions specified. (Up to logits)
     """
-    model = slim.fully_connected(input, 512, name='fc1')
+    model = slim.fully_connected(input, 512, scope='fc1')
     model = slim.dropout(model)
-    model = slim.fully_connected(model, 512, name='fc2')
+    model = slim.fully_connected(model, 512, scope='fc2')
+    model = slim.fully_connected(model, output_dim, scope='output')
 
     # l_in = lasagne.layers.InputLayer(
     #     shape=(1, input_dim)

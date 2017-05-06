@@ -23,7 +23,7 @@ const double kick_penalty = 5.0; // kicking is risky!!!
 
 const double posession_reward = 5.0;
 
-const double ball_seek_reward = 1.0;
+const double ball_seek_reward = 2.0;
 
 q_side_t q_side = Q_EAST;
 
@@ -46,7 +46,7 @@ char *unique_name(team_name)()
 char	*s;
 
 /*  "####################\0" <--- 20 characters */
-s = "wild dogs           \0";
+s = "diamond dogs        \0";
 return(s);
 }
 
